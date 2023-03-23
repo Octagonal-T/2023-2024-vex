@@ -17,7 +17,8 @@
 
 int main() {
   preAuton();
-  Competition.autonomous(startAutonomous);
+  startAutonomous();
+  // Competition.autonomous(startAutonomous);
   // Competition.drivercontrol(driverControl);
 
   while (true) {

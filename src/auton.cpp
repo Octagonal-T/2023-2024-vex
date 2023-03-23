@@ -21,12 +21,21 @@ void driveTo(double lateral, double heading){
   movementFinished = false;
 }
 int drivePID(){
-  while(Competition.isAutonomous()){
-    double pos = Encoder.rotation(vex::degrees);
-    double currentHeading = Inertial.heading(vex::degrees);
+  while(true){
+    double pos = Encoder.rotation(vex::rev) * -1;
+    // double currentHeading = Inertial.heading(vex::degrees);
+
+    Controller.Screen.clearScreen();
+    Controller.Screen.setCursor(1, 1);
 
     lateralPID.error = pos - lateralPID.target;
-    rotationPID.error = currentHeading - rotationPID.target;
+    // rotationPID.error = currentHeading - rotationPID.target;
+
+    Controller.Screen.print(pos);
+    Controller.Screen.newLine();
+    Controller.Screen.print(lateralPID.error);
+    Controller.Screen.newLine();
+    
     if(!(lateralPID.error < 0.01 && lateralPID.error > -0.01) || !(rotationPID.error < 0.01 && rotationPID.error > -0.01)){
       confirmSeconds=0;
       movementFinished = false;
@@ -35,11 +44,11 @@ int drivePID(){
       lateralPID.integral+=lateralPID.error;
       rotationPID.integral += rotationPID.error;
       double lateralVelocity = (lateralPID.error * lateralPID.kP + lateralPID.derivative * lateralPID.kD + lateralPID.integral * lateralPID.kI);
-      double turnVelocity = (rotationPID.error * rotationPID.kP + rotationPID.derivative * rotationPID.kD + rotationPID.integral * rotationPID.kI);
+      // double turnVelocity = (rotationPID.error * rotationPID.kP + rotationPID.derivative * rotationPID.kD + rotationPID.integral * rotationPID.kI);
       
-      double leftMotorsVelocity = lateralVelocity + turnVelocity;
-      double rightMotorsVelocity = lateralVelocity - turnVelocity;
-
+      double leftMotorsVelocity = (lateralVelocity );
+      double rightMotorsVelocity = (lateralVelocity );
+      Controller.Screen.print(lateralVelocity);
       if(leftMotorsVelocity > 12) leftMotorsVelocity = 12;
       else if(leftMotorsVelocity < -12) leftMotorsVelocity = -12;
       if(rightMotorsVelocity > 12) rightMotorsVelocity = 12;
@@ -71,9 +80,9 @@ int drivePID(){
 }
 
 void preAuton(){
-  lateralPID.kP = 0.1;
-  lateralPID.kI = 0.05;
-  lateralPID.kD = 0.05;
+  lateralPID.kP = 2;
+  lateralPID.kI = 0.0;
+  lateralPID.kD = 0.0;
 
   rotationPID.kP = 0.1;
   rotationPID.kI = 0.05;
@@ -82,28 +91,13 @@ void preAuton(){
   movementFinished = true;
   confirmSeconds = 0;
 
-  Brain.Screen.print("CALIBRATING INERTIAL");
-  Brain.Screen.newLine();
-  Controller.Screen.clearLine(0);
-  Controller.Screen.setCursor(0,0);
-  Controller.Screen.print("CALIBRATING INERTIAL");
-  Inertial.calibrate();
-  waitUntil(!Inertial.isCalibrating());
-  Inertial.resetHeading();
-  Brain.Screen.print("CALIBRATING INERTIAL");
-  Brain.Screen.newLine();
-  Controller.Screen.clearLine(0);
-  Controller.Screen.setCursor(0,0);
-  Controller.Screen.print("CALIBRATING INERTIAL");
-  Controller.Screen.setCursor(0,0);
-  Controller.Screen.print("Select autonomous routine");
-
 }
 void startAutonomous(){
-  vex::task drivePID(drivePID);
-  vex::task flywheelPID(launcherPID);
-  toggleFlywheel(600);
-  driveTo(100);
-  waitUntil(movementFinished);
+  vex::task drivePIDTask(drivePID);
+  // vex::task flywheelPID(launcherPID);
+  driveTo(100, 0);
+  // toggleFlywheel(600);
+  // driveTo(100);
+  // waitUntil(movementFinished);
   toggleIndexer();
 }

@@ -6,7 +6,6 @@
 #include <string>
 #include <vex.h>
 #include <constants.h>
-#include <flywheel.h>
 
 PIDVariables flywheelPID;
 bool flywheelEngaged = false;
