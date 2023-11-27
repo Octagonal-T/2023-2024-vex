@@ -1,0 +1,18 @@
+{
+	"extension": {
+		"version": "0.4.2",
+		"json": 1
+	},
+	"project": {
+		"name": "the-felix-flower",
+		"description": "early season robot for over under by 7614A",
+		"creationDate": "6/27/2023, 10:02:10 AM",
+		"platform": "V5",
+		"language": "cpp",
+		"slot": 2,
+		"sdkVersion": "V5_20220726_10_00_00",
+		"cpp": {
+			"includePath": []
+		}
+	}
+}
