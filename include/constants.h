@@ -15,6 +15,8 @@ extern vex::motor Intake;
 extern vex::motor Flywheel;
 extern vex::motor Lift;
 
+extern vex::inertial Inertial;
+
 struct PIDVariables{
   double kP;
   double kI;

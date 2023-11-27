@@ -74,12 +74,11 @@ void preAuton(){
   Controller.Screen.clearScreen();
   Controller.Screen.setCursor(1, 1);
   Controller.Screen.print("Calibrating inertial");
-  // Inertial.calibrate();
-  // while(Inertial.isCalibrating()){
-  //   vex::task::sleep(100);
-  // }
-  // Encoder.resetRotation();
-  // Inertial.resetHeading();
+  Inertial.calibrate();
+  while(Inertial.isCalibrating()){
+    vex::task::sleep(100);
+  }
+  Inertial.resetHeading();
   LeftMotor1.resetPosition();
   LeftMotor2.resetPosition();
   RightMotor1.resetPosition();
