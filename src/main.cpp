@@ -17,7 +17,7 @@
 #include <constants.h>
 
 int main() {
+  preAuton();
+  startAutonomous();
   driverControl();
-  // preAuton();
-  // startAutonomous();
 }

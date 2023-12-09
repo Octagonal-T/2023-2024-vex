@@ -2,7 +2,7 @@
 #ifndef TASKS_H_
 #define TASKS_H_
 
-extern int intakeMoving;
+extern int intakeDirection;
 
 void intake();
 void reverseIntake();

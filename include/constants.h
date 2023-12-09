@@ -14,8 +14,10 @@ extern vex::motor RightMotor2;
 extern vex::motor Intake;
 extern vex::motor Flywheel;
 extern vex::motor Lift;
+extern vex::motor Wings;
 
 extern vex::inertial Inertial;
+extern vex::distance Distance;
 
 struct PIDVariables{
   double kP;

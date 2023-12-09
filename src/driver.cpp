@@ -8,11 +8,14 @@
 #include <constants.h>
 #include <subtasks.h>
 
+
 bool leftMotorMoving = true;
 bool rightMotorMoving = true;
 bool driverEnabled = false;
 bool liftMoving = false;
+bool wingsMoving = false;
 int gameTime = 0;
+int delayIntakeStop = 0;
 
 int updateControllerScreen(){
   while(driverEnabled){
@@ -24,6 +27,7 @@ int updateControllerScreen(){
     Controller.Screen.newLine();
     int seconds = floor(gameTime / 50);
     int mins = floor(seconds / 60);
+    if(seconds == 95) Controller.rumble("..");
     seconds = seconds - (mins*60);
     Controller.Screen.newLine();
     Controller.Screen.print("Game time: %d:%d", mins, seconds);
@@ -34,19 +38,25 @@ int updateControllerScreen(){
 
 void driverControl(){
   driverEnabled = true;
-  // Controller.ButtonR1.pressed(intake);
-  Controller.ButtonL2.pressed(toggleWings);
+  // Controller.ButtonL2.pressed(toggleWings);
   Controller.ButtonX.pressed(toggleFlywheel);
+  Controller.ButtonR1.pressed(intake);
   vex::task controllerScreen(updateControllerScreen);
   while(true){
-    if(Controller.ButtonR1.pressing()){
-      if(Controller.ButtonL1.pressing()){
-        reverseIntake();
+    Lift.setBrake(vex::hold);
+    if(Distance.objectDistance(vex::mm) < 170 && intakeDirection == 1){
+      if(delayIntakeStop == 3){
+        Intake.stop();
+        intakeDirection = 0;
+        delayIntakeStop = 0;
       }else{
-        intake();
+        delayIntakeStop++;
       }
     }
-    if(Controller.ButtonR2.pressing()){
+    //intake
+    
+    //lift
+    if(Controller.ButtonL2.pressing()){
       if(Controller.ButtonL1.pressing()){
         Lift.spin(vex::forward, 100, vex::percent);
       }else{
@@ -56,6 +66,18 @@ void driverControl(){
     }else if(liftMoving){
       liftMoving = false;
       Lift.stop();
+    }
+    //wings
+    if(Controller.ButtonR2.pressing()){
+      if(Controller.ButtonL1.pressing()){
+        Wings.spin(vex::forward, 100, vex::percent);
+      }else{
+        Wings.spin(vex::reverse, 100, vex::percent);
+      }
+      wingsMoving = true;
+    }else if(wingsMoving){
+      wingsMoving = false;
+      Wings.stop();
     }
     double leftJoystick = abs(Controller.Axis1.position()) > 5 ? Controller.Axis1.position() : 0;
     double rightJoystick = abs(Controller.Axis3.position()) > 5 ? Controller.Axis3.position() : 0;

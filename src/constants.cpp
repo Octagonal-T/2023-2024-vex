@@ -15,11 +15,13 @@ vex::motor LeftMotor2(vex::PORT17, vex::ratio18_1, true); //back
 vex::motor RightMotor1(vex::PORT20, vex::ratio18_1, true); //front
 vex::motor RightMotor2(vex::PORT19, vex::ratio18_1, false); //back
 
-vex::motor Intake(vex::PORT16, vex::ratio18_1, false);
+vex::motor Intake(vex::PORT16, vex::ratio18_1, true);
 vex::motor Flywheel(vex::PORT15, vex::ratio6_1, true);
 vex::motor Lift(vex::PORT14, vex::ratio36_1, false);
+vex::motor Wings(vex::PORT13, vex::ratio18_1, false);
 
 vex::inertial Inertial(vex::PORT10);
+vex::distance Distance(vex::PORT9);
 
 vex::motor_group LeftMotors(LeftMotor1, LeftMotor2);
 vex::motor_group RightMotors(RightMotor1, RightMotor2);

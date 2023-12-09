@@ -35,8 +35,10 @@ int drivePID(){
         currentHeading = currentHeading <= 90 ? currentHeading + 360 : currentHeading; 
         //if turning left, and the current heading is between 0 and 90, then convert the heading to the next positive coterminal angle. 
         //this allows us to calculate our error correctly.
+      }else{
+        currentHeading = currentHeading >= 270 ? currentHeading - 360 : currentHeading;
       }
-      double rotationalError = fabs(rotatePID.target - currentHeading); //make error positive; we will figure out directions later
+      double rotationalError = rotatePID.target - currentHeading;
 
       if(lateralPID.target != 0 && fabs(lateralError) > 25){
         confirmSecs = 0;
@@ -58,13 +60,15 @@ int drivePID(){
         RightMotors.spin(vex::forward, rightSideVelocity, vex::percent);
 
         lateralPID.lastError = lateralPID.error;
-      }else if(rotatePID.target != 0 && fabs(rotationalError) > 1){
+      }else if(rotatePID.target != 0 && fabs(rotationalError) > 3){
+
         confirmSecs = 0;
         rotatePID.error = rotationalError;
         rotatePID.derivative = rotatePID.error - rotatePID.lastError;
         rotatePID.integral += rotatePID.error;
 
         double velocity = rotatePID.error * rotatePID.kP + rotatePID.integral * rotatePID.kI + rotatePID.derivative * rotatePID.kD;
+
 
         Controller.Screen.clearScreen();
         Controller.Screen.setCursor(1,1);
@@ -74,13 +78,14 @@ int drivePID(){
         Controller.Screen.newLine();
         Controller.Screen.print(rotatePID.error);
 
-        LeftMotors.spin(vex::forward, dir ? velocity : -velocity, vex::percent);
-        RightMotors.spin(vex::forward, dir ? -velocity : velocity, vex::percent);
+
+        LeftMotors.spin(vex::forward, velocity, vex::percent);
+        RightMotors.spin(vex::forward, velocity, vex::percent);
 
         rotatePID.lastError = rotatePID.error;
       }else{
         confirmSecs++;
-        if(confirmSecs == 15){
+        if(confirmSecs == 3){
           Controller.Screen.clearScreen();
           Controller.Screen.setCursor(0, 0);
           Controller.Screen.print("finished");
@@ -93,12 +98,6 @@ int drivePID(){
           rotatePID.target = 0;
           lateralPID.lastError = 0;
           rotatePID.lastError = 0;
-
-          Inertial.resetHeading();
-          LeftMotor1.resetPosition();
-          LeftMotor2.resetPosition();
-          RightMotor1.resetPosition();
-          RightMotor2.resetPosition();
 
 
           LeftMotors.stop();
@@ -115,11 +114,18 @@ int drivePID(){
 void driveTo(double target){
   lateralPID.target = -(target/WHEEL_CIRCUMFRENECE)*360;
   movementFinished = false;
+  
+  LeftMotor1.resetPosition();
+  LeftMotor2.resetPosition();
+  RightMotor1.resetPosition();
+  RightMotor2.resetPosition();
 }
 void rotateTo(double target){ 
   rotatePID.target = target < 0 ? 360 + target : target; //if we are turning left, convert the target from negative degrees to its principal angle.
   movementFinished = false;
   dir = target < 0;
+
+  Inertial.resetHeading();
 }
 
 
@@ -141,14 +147,16 @@ void preAuton(){
   Controller.Screen.newLine();
   autoEngaged = false;
 
+  lateralPID.target = 0;
   lateralPID.kP = 0.1;
   lateralPID.kI = 0;
   lateralPID.kD = 0.0;
   lateralPID.lastError = 0;
 
-  rotatePID.kP = 0.4;
-  rotatePID.kI = 0;
-  rotatePID.kD = 0.0;
+  rotatePID.target = 0;
+  rotatePID.kP = 0.372;
+  rotatePID.kI = 0.0052;
+  rotatePID.kD = 0.2;
   rotatePID.lastError = 0;
 
   Controller.Screen.print("Set PID variables");
@@ -209,5 +217,33 @@ void preAuton(){
 void startAutonomous(){
   autoEngaged = true;
   vex::task drivePIDTask(drivePID);
-  driveTo(39);
+  if(routine == 1){//far side
+    driveTo(50);
+    Lift.setVelocity(-100, vex::percent);
+    Lift.spinFor(100, vex::degrees, false);
+    waitUntil(movementFinished);
+    rotateTo(75);
+    waitUntil(movementFinished);
+    Intake.spin(vex::reverse, 100, vex::percent);
+    vex::task::sleep(50);
+    Intake.stop();
+    driveTo(-10);
+    waitUntil(movementFinished);
+    rotateTo(-85);
+    waitUntil(movementFinished);
+    Intake.spin(vex::forward, 100, vex::percent);
+    driveTo(10);
+    waitUntil(Distance.objectDistance(vex::mm) < 170);
+    Intake.stop();
+    rotateTo(95);
+    waitUntil(movementFinished);
+    LeftMotors.spin(vex::forward, 100, vex::percent);
+    RightMotors.spin(vex::reverse, 100, vex::percent);
+    Intake.spin(vex::reverse, 100, vex::percent);
+    vex::task::sleep(760);
+    LeftMotors.stop();
+    RightMotors.stop();
+    Intake.stop();
+    driveTo(-5);
+  }
 }
