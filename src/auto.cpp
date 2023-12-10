@@ -196,10 +196,9 @@ void preAuton(){
       routine = 3;
       Controller.Screen.clearScreen();
       Controller.Screen.setCursor(1, 1);
-      Controller.Screen.print("Test routine");
+      Controller.Screen.print("Skills Routine");
       flag = true;
       break;
-
     }
     vex::task::sleep(10);
   }
@@ -245,5 +244,37 @@ void startAutonomous(){
     RightMotors.stop();
     Intake.stop();
     driveTo(-5);
+  }else if(routine == 2){
+
+  }else if(routine == 3){ //skills
+    Lift.setVelocity(-100, vex::percent);
+    Lift.spinFor(200, vex::degrees, false);
+    Flywheel.spin(vex::reverse, 100, vex::percent);
+    int gameTime = 0;
+    while(gameTime != 50){ //CHANGE TO 55 SECONDS
+      gameTime++;
+      vex::task::sleep(1000);
+    }
+    Flywheel.stop();
+    driveTo(-5);
+    waitUntil(movementFinished);
+    rotateTo(-90);
+    waitUntil(movementFinished);
+    driveTo(-25);
+    waitUntil(movementFinished);
+    rotateTo(45);
+    waitUntil(movementFinished);
+    LeftMotors.spin(vex::reverse, 100, vex::percent);
+    RightMotors.spin(vex::forward, 100, vex::percent);
+    vex::task::sleep(750);
+    LeftMotors.stop();
+    RightMotors.stop();
+    driveTo(5);
+    waitUntil(movementFinished);
+    LeftMotors.spin(vex::reverse, 100, vex::percent);
+    RightMotors.spin(vex::forward, 100, vex::percent);
+    vex::task::sleep(750);
+    LeftMotors.stop();
+    RightMotors.stop();
   }
 }

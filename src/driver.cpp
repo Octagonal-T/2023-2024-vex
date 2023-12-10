@@ -53,7 +53,6 @@ void driverControl(){
         delayIntakeStop++;
       }
     }
-    //intake
     
     //lift
     if(Controller.ButtonL2.pressing()){
