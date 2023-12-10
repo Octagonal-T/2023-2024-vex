@@ -19,6 +19,8 @@ bool dir = false; //false = left, true = right
 PIDVariables lateralPID;
 PIDVariables rotatePID;
 
+bool flag = false;
+
 int drivePID(){
   while(autoEngaged){
     if(!movementFinished){
@@ -61,11 +63,15 @@ int drivePID(){
 
         lateralPID.lastError = lateralPID.error;
       }else if(rotatePID.target != 0 && fabs(rotationalError) > 3){
-
+      
         confirmSecs = 0;
         rotatePID.error = rotationalError;
         rotatePID.derivative = rotatePID.error - rotatePID.lastError;
         rotatePID.integral += rotatePID.error;
+
+        if(rotatePID.error < 5 && flag){
+          rotatePID.kI = 0.01;
+        }
 
         double velocity = rotatePID.error * rotatePID.kP + rotatePID.integral * rotatePID.kI + rotatePID.derivative * rotatePID.kD;
 
@@ -224,7 +230,7 @@ void startAutonomous(){
     rotateTo(75);
     waitUntil(movementFinished);
     Intake.spin(vex::reverse, 100, vex::percent);
-    vex::task::sleep(50);
+    vex::task::sleep(150);
     Intake.stop();
     driveTo(-10);
     waitUntil(movementFinished);
@@ -232,7 +238,7 @@ void startAutonomous(){
     waitUntil(movementFinished);
     Intake.spin(vex::forward, 100, vex::percent);
     driveTo(10);
-    waitUntil(Distance.objectDistance(vex::mm) < 170);
+    waitUntil(Distance.objectDistance(vex::mm) < 170 || movementFinished);
     Intake.stop();
     rotateTo(95);
     waitUntil(movementFinished);
@@ -243,15 +249,28 @@ void startAutonomous(){
     LeftMotors.stop();
     RightMotors.stop();
     Intake.stop();
-    driveTo(-5);
+    driveTo(-10);
+    waitUntil(movementFinished);
+    flag = true;
+    rotateTo(115);
+    waitUntil(movementFinished);
+    driveTo(45);
   }else if(routine == 2){
-
-  }else if(routine == 3){ //skills
     Lift.setVelocity(-100, vex::percent);
     Lift.spinFor(200, vex::degrees, false);
-    Flywheel.spin(vex::reverse, 100, vex::percent);
+    vex::task::sleep(2000);
+    LeftMotors.spin(vex::reverse, 100, vex::percent);
+    RightMotors.spin(vex::forward, 100, vex::percent);
+    vex::task::sleep(300);
+    LeftMotors.stop();
+    RightMotors.stop();
+  }else if(routine == 3){ //skills
     int gameTime = 0;
-    while(gameTime != 50){ //CHANGE TO 55 SECONDS
+    Lift.setVelocity(-100, vex::percent);
+    Lift.spinFor(200, vex::degrees, false);
+    vex::task::sleep(50);
+    Flywheel.spin(vex::forward, 100, vex::percent);
+    while(gameTime != 50){
       gameTime++;
       vex::task::sleep(1000);
     }

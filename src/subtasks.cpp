@@ -13,7 +13,7 @@ bool wingsOn = false;
 
 void intake(){
   if(Controller.ButtonL1.pressing()){
-    if(intakeDirection != -1){
+    if(intakeDirection != -1 || intakeDirection != 1){
       Intake.spin(vex::reverse, 100, vex::percent);
       intakeDirection = -1;
     }else{
