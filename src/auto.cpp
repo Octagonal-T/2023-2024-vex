@@ -39,10 +39,12 @@ int drivePID(){
         //this allows us to calculate our error correctly.
       }else{
         currentHeading = currentHeading >= 270 ? currentHeading - 360 : currentHeading;
+        //if turning right, and the current heading is between 270 and 360, then convert the heading to the next smallest coterminal angle.
+        //this allows us to calculate our error correctly
       }
       double rotationalError = rotatePID.target - currentHeading;
 
-      if(lateralPID.target != 0 && fabs(lateralError) > 25){
+      if(lateralPID.target != 0 && fabs(lateralError) > lateralPID.tolerance){
         confirmSecs = 0;
         lateralPID.error = lateralPID.target - currentPos;
         lateralPID.derivative = lateralPID.error - lateralPID.lastError;
@@ -62,7 +64,7 @@ int drivePID(){
         RightMotors.spin(vex::forward, rightSideVelocity, vex::percent);
 
         lateralPID.lastError = lateralPID.error;
-      }else if(rotatePID.target != 0 && fabs(rotationalError) > 3){
+      }else if(rotatePID.target != 0 && fabs(rotationalError) > rotatePID.tolerance){
       
         confirmSecs = 0;
         rotatePID.error = rotationalError;
@@ -70,7 +72,9 @@ int drivePID(){
         rotatePID.integral += rotatePID.error;
 
         if(rotatePID.error < 5 && flag){
-          rotatePID.kI = 0.01;
+          rotatePID.kD = 0.4;
+        }else{
+          rotatePID.kD = 0.2;
         }
 
         double velocity = rotatePID.error * rotatePID.kP + rotatePID.integral * rotatePID.kI + rotatePID.derivative * rotatePID.kD;
@@ -158,12 +162,14 @@ void preAuton(){
   lateralPID.kI = 0;
   lateralPID.kD = 0.0;
   lateralPID.lastError = 0;
+  lateralPID.tolerance = 25;
 
   rotatePID.target = 0;
   rotatePID.kP = 0.372;
   rotatePID.kI = 0.0052;
   rotatePID.kD = 0.2;
   rotatePID.lastError = 0;
+  rotatePID.tolerance = 3;
 
   Controller.Screen.print("Set PID variables");
   vex::task::sleep(1000);
@@ -252,7 +258,8 @@ void startAutonomous(){
     driveTo(-10);
     waitUntil(movementFinished);
     flag = true;
-    rotateTo(115);
+    rotatePID.tolerance = 5;
+    rotateTo(125);
     waitUntil(movementFinished);
     driveTo(45);
   }else if(routine == 2){
@@ -277,8 +284,10 @@ void startAutonomous(){
     Flywheel.stop();
     driveTo(-5);
     waitUntil(movementFinished);
+    flag = true;
     rotateTo(-90);
     waitUntil(movementFinished);
+    flag = false;
     driveTo(-25);
     waitUntil(movementFinished);
     rotateTo(45);

@@ -30,6 +30,7 @@ struct PIDVariables{
   double integral;
 
   double target;
+  double tolerance;
 };
 
 extern vex::motor_group LeftMotors;
