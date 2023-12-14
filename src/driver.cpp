@@ -41,6 +41,7 @@ void driverControl(){
   // Controller.ButtonL2.pressed(toggleWings);
   Controller.ButtonX.pressed(toggleFlywheel);
   Controller.ButtonR1.pressed(intake);
+  Controller.ButtonY.pressed(toggleReverseFlywheel);
   vex::task controllerScreen(updateControllerScreen);
   while(true){
     Lift.setBrake(vex::hold);

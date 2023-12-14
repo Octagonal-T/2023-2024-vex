@@ -13,7 +13,7 @@ bool wingsOn = false;
 
 void intake(){
   if(Controller.ButtonL1.pressing()){
-    if(intakeDirection != -1 || intakeDirection != 1){
+    if(intakeDirection != -1){
       Intake.spin(vex::reverse, 100, vex::percent);
       intakeDirection = -1;
     }else{
@@ -21,7 +21,7 @@ void intake(){
       intakeDirection = 0;
     }
   }else{
-    if(intakeDirection != 1){
+    if(intakeDirection != 1 || intakeDirection != -1){
       Intake.spin(vex::forward, 100, vex::percent);
       intakeDirection = 1;
     }else{
@@ -31,6 +31,14 @@ void intake(){
   }
 }
 void toggleFlywheel(){
+  if(flywheelOn){
+    Flywheel.stop();
+  }else{
+    Flywheel.spin(vex::reverse, 100, vex::percent);
+  }
+  flywheelOn = !flywheelOn;
+}
+void toggleReverseFlywheel(){
   if(flywheelOn){
     Flywheel.stop();
   }else{

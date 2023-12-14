@@ -7,6 +7,7 @@ extern int intakeDirection;
 void intake();
 void reverseIntake();
 void toggleFlywheel();
+void toggleReverseFlywheel();
 void toggleWings();
 
 #endif
