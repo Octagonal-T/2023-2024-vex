@@ -21,7 +21,7 @@ void intake(){
       intakeDirection = 0;
     }
   }else{
-    if(intakeDirection != 1){
+    if(intakeDirection != 1 && intakeDirection != -1){
       Intake.spin(vex::forward, 100, vex::percent);
       intakeDirection = 1;
     }else{
