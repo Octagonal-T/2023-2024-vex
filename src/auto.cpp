@@ -7,6 +7,7 @@
 #include <vex.h>
 #include <constants.h>
 #include <subtasks.h>
+#include <driver.h>
 #include <auton.h>
 double WHEEL_CIRCUMFRENECE = 12.5663706;
 int routine;
@@ -72,7 +73,7 @@ int drivePID(){
         rotatePID.integral += rotatePID.error;
 
         if(rotatePID.error < 5 && flag){
-          rotatePID.kD = 0.4;
+          rotatePID.kD = 0.45;
         }else{
           rotatePID.kD = 0.2;
         }
@@ -181,55 +182,55 @@ void preAuton(){
   Controller.Screen.print("Right: Close routine");
   Controller.Screen.newLine();
   Controller.Screen.print("X: no routine");
-  bool flag = false;
+  bool flag1 = false;
   for (int i = 0; i < 500; i++){
     if(Controller.ButtonLeft.pressing()){
       routine = 1;
       Controller.Screen.clearScreen();
       Controller.Screen.setCursor(1, 1);
       Controller.Screen.print("Far selected");
-      flag = true;
+      flag1 = true;
       break;
     }else if(Controller.ButtonRight.pressing()){
       routine = 2;
       Controller.Screen.clearScreen();
       Controller.Screen.setCursor(1, 1);
       Controller.Screen.print("Close selected");
-      flag = true;
+      flag1 = true;
       break;
     }else if(Controller.ButtonX.pressing()){
       routine = 0;
       Controller.Screen.clearScreen();
       Controller.Screen.setCursor(1, 1);
       Controller.Screen.print("No routine");
-      flag = true;
+      flag1 = true;
       break;
     }else if(Controller.ButtonDown.pressing()){
       routine = 3;
       Controller.Screen.clearScreen();
       Controller.Screen.setCursor(1, 1);
       Controller.Screen.print("Skills Routine");
-      flag = true;
+      flag1 = true;
       break;
     }
     vex::task::sleep(10);
   }
-  if(!flag){
+  if(!flag1){
     routine = 0;
     Controller.Screen.clearScreen();
     Controller.Screen.setCursor(1, 1);
     Controller.Screen.print("No routine");
   }
-  vex::task::sleep(1000);
+  vex::task::sleep(3000);
   Controller.Screen.clearScreen();
-  Brain.Screen.drawImageFromFile("dougal.png", 0, 0);
+  driverEnabled = true;
 }
 
 void startAutonomous(){
   autoEngaged = true;
   vex::task drivePIDTask(drivePID);
   if(routine == 1){//far side
-    driveTo(50);
+    driveTo(46);
     Lift.setVelocity(-100, vex::percent);
     Lift.spinFor(100, vex::degrees, false);
     waitUntil(movementFinished);
@@ -246,7 +247,9 @@ void startAutonomous(){
     driveTo(10);
     waitUntil(Distance.objectDistance(vex::mm) < 170 || movementFinished);
     Intake.stop();
+    flag = true;
     rotateTo(95);
+    flag = false;
     waitUntil(movementFinished);
     LeftMotors.spin(vex::forward, 100, vex::percent);
     RightMotors.spin(vex::reverse, 100, vex::percent);
@@ -259,7 +262,7 @@ void startAutonomous(){
     waitUntil(movementFinished);
     flag = true;
     rotatePID.tolerance = 5;
-    rotateTo(125);
+    rotateTo(130);
     waitUntil(movementFinished);
     driveTo(45);
   }else if(routine == 2){

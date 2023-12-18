@@ -37,82 +37,87 @@ int updateControllerScreen(){
 }
 
 void driverControl(){
-  driverEnabled = true;
-  // Controller.ButtonL2.pressed(toggleWings);
-  Controller.ButtonX.pressed(toggleFlywheel);
-  Controller.ButtonR1.pressed(intake);
-  Controller.ButtonY.pressed(toggleReverseFlywheel);
-  vex::task controllerScreen(updateControllerScreen);
+  Controller.rumble(".");
   while(true){
-    Lift.setBrake(vex::hold);
-    if(Distance.objectDistance(vex::mm) < 170 && intakeDirection == 1){
-      if(delayIntakeStop == 3){
-        Intake.stop();
-        intakeDirection = 0;
-        delayIntakeStop = 0;
-      }else{
-        delayIntakeStop++;
-      }
-    }
-    
-    //lift
-    if(Controller.ButtonL2.pressing()){
-      if(Controller.ButtonL1.pressing()){
-        Lift.spin(vex::forward, 100, vex::percent);
-      }else{
-        Lift.spin(vex::reverse, 100, vex::percent);
-      }
-      liftMoving = true;
-    }else if(liftMoving){
-      liftMoving = false;
-      Lift.stop();
-    }
-    //wings
-    if(Controller.ButtonR2.pressing()){
-      if(Controller.ButtonL1.pressing()){
-        Wings.spin(vex::forward, 100, vex::percent);
-      }else{
-        Wings.spin(vex::reverse, 100, vex::percent);
-      }
-      wingsMoving = true;
-    }else if(wingsMoving){
-      wingsMoving = false;
-      Wings.stop();
-    }
-    double leftJoystick = abs(Controller.Axis1.position()) > 5 ? Controller.Axis1.position() : 0;
-    double rightJoystick = abs(Controller.Axis3.position()) > 5 ? Controller.Axis3.position() : 0;
+    if(driverEnabled){
+      // Controller.ButtonL2.pressed(toggleWings);
+      Controller.ButtonX.pressed(toggleFlywheel);
+      Controller.ButtonR1.pressed(intake);
+      Controller.ButtonY.pressed(toggleReverseFlywheel);
+      vex::task controllerScreen(updateControllerScreen);
+      while(true){
+        Lift.setBrake(vex::hold);
+        if(Distance.objectDistance(vex::mm) < 170 && intakeDirection == 1){
+          if(delayIntakeStop == 3){
+            Intake.stop();
+            intakeDirection = 0;
+            delayIntakeStop = 0;
+          }else{
+            delayIntakeStop++;
+          }
+        }
+        //flywheel
+        
+        //lift
+        if(Controller.ButtonL2.pressing()){
+          if(Controller.ButtonL1.pressing()){
+            Lift.spin(vex::forward, 100, vex::percent);
+          }else{
+            Lift.spin(vex::reverse, 100, vex::percent);
+          }
+          liftMoving = true;
+        }else if(liftMoving){
+          liftMoving = false;
+          Lift.stop();
+        }
+        //wings
+        if(Controller.ButtonR2.pressing()){
+          if(Controller.ButtonL1.pressing()){
+            Wings.spin(vex::forward, 100, vex::percent);
+          }else{
+            Wings.spin(vex::reverse, 100, vex::percent);
+          }
+          wingsMoving = true;
+        }else if(wingsMoving){
+          wingsMoving = false;
+          Wings.stop();
+        }
+        double leftJoystick = abs(Controller.Axis1.position()) > 5 ? Controller.Axis1.position() : 0;
+        double rightJoystick = abs(Controller.Axis3.position()) > 5 ? Controller.Axis3.position() : 0;
 
-    double leftSideSpeed = leftJoystick + rightJoystick;
-    double rightSideSpeed = leftJoystick - rightJoystick;
+        double leftSideSpeed = leftJoystick + rightJoystick;
+        double rightSideSpeed = leftJoystick - rightJoystick;
 
-    if(abs(leftJoystick) > 90 && abs(rightJoystick) > 90){
-      leftSideSpeed = (abs(leftSideSpeed) < 5) ? ((leftSideSpeed > 0 && leftSideSpeed < 5) ? -25: 25) : leftSideSpeed;
-      rightSideSpeed = (abs(rightSideSpeed) < 5) ? ((rightSideSpeed > 0 && rightSideSpeed < 5) ? -25: 25) : rightSideSpeed;
-    }
-    if (fabs(leftSideSpeed) < 5) {
-      if (leftMotorMoving) {
-        LeftMotors.stop();
-        leftMotorMoving = false;
-      }
-    } else {
-      leftMotorMoving = true;
-    }
-    if (fabs(rightSideSpeed) < 5) {
-      if (rightMotorMoving) {
-        RightMotors.stop();
-        rightMotorMoving = false;
-      }
-    } else {
-      rightMotorMoving = true;
-    }
-    if (leftMotorMoving) {
-      LeftMotors.spin(vex::forward, leftSideSpeed, vex::percent);
-    }
-    if (rightMotorMoving) {
-      RightMotors.spin(vex::forward, rightSideSpeed, vex::percent);
-    }
+        if(abs(leftJoystick) > 90 && abs(rightJoystick) > 90){
+          leftSideSpeed = (abs(leftSideSpeed) < 5) ? ((leftSideSpeed > 0 && leftSideSpeed < 5) ? -25: 25) : leftSideSpeed;
+          rightSideSpeed = (abs(rightSideSpeed) < 5) ? ((rightSideSpeed > 0 && rightSideSpeed < 5) ? -25: 25) : rightSideSpeed;
+        }
+        if (fabs(leftSideSpeed) < 5) {
+          if (leftMotorMoving) {
+            LeftMotors.stop();
+            leftMotorMoving = false;
+          }
+        } else {
+          leftMotorMoving = true;
+        }
+        if (fabs(rightSideSpeed) < 5) {
+          if (rightMotorMoving) {
+            RightMotors.stop();
+            rightMotorMoving = false;
+          }
+        } else {
+          rightMotorMoving = true;
+        }
+        if (leftMotorMoving) {
+          LeftMotors.spin(vex::forward, leftSideSpeed, vex::percent);
+        }
+        if (rightMotorMoving) {
+          RightMotors.spin(vex::forward, rightSideSpeed, vex::percent);
+        }
 
-    gameTime++;
-    vex::task::sleep(20);
+        gameTime++;
+        vex::task::sleep(20);
+      }
+    }
   }
 }
